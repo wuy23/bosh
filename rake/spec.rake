@@ -352,19 +352,19 @@ namespace :spec do
     end
 
     def latest_aws_micro_bosh_stemcell_path
-      Dir.glob("#{ENV['JENKINS_HOME']}/jobs/aws_micro_bosh_stemcell/lastSuccessful/archive/light-*.tgz").first
+      File.join(ENV['WORKSPACE'], "micro-bosh-stemcell-aws.tgz")
     end
 
     def latest_aws_stemcell_path
-      Dir.glob("#{ENV['JENKINS_HOME']}/jobs/aws_bosh_stemcell/lastSuccessful/archive/light-*.tgz").first
+      File.join(ENV['WORKSPACE'], "bosh-stemcell-aws.tgz")
     end
 
     def latest_openstack_micro_bosh_stemcell_path
-      Dir.glob("#{ENV['JENKINS_HOME']}/workspace/openstack_micro_bosh_stemcell/micro-bosh-stemcell-openstack*.tgz").first
+      File.join(ENV['WORKSPACE'], "micro-bosh-stemcell-openstack-kvm.tgz")
     end
 
     def latest_openstack_stemcell_path
-      Dir.glob("#{ENV['JENKINS_HOME']}/workspace/openstack_bosh_stemcell/bosh-stemcell-openstack-*.tgz").first
+      File.join(ENV['WORKSPACE'], "bosh-stemcell-openstack-kvm.tgz")
     end
 
     def latest_vsphere_micro_bosh_stemcell_path

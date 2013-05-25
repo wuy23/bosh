@@ -55,6 +55,34 @@ namespace :ci do
         end
       end
     end
+
+    namespace :openstack do
+      task :micro do
+        cd(ENV['WORKSPACE']) do
+          begin
+            download_latest_stemcell('openstack', 'micro', 'kvm')
+            download_latest_stemcell('openstack', 'basic', 'kvm')
+            Rake::Task['spec:system:openstack:micro'].invoke
+          ensure
+            rm_f(Dir.glob('*bosh-stemcell-*.tgz'))
+          end
+        end
+      end
+    end
+
+    namespace :aws do
+      task :micro do
+        cd(ENV['WORKSPACE']) do
+          begin
+            download_latest_stemcell('aws', 'micro')
+            download_latest_stemcell('aws', 'basic')
+            Rake::Task['spec:system:aws:micro'].invoke
+          ensure
+            rm_f(Dir.glob('*bosh-stemcell-*.tgz'))
+          end
+        end
+      end
+    end
   end
 
 
@@ -66,16 +94,18 @@ namespace :ci do
     end
   end
 
-  def download_latest_stemcell(infrastructure, type)
+  def download_latest_stemcell(infrastructure, type, hypervisor=nil)
+    # hypervisor var is ugly hack since openstack stemcell buidler includes it in filename
+    stemcell_basename = "#{type == 'micro' ? 'micro-' : ''}bosh-stemcell-#{infrastructure}#{hypervisor ? '-' + hypervisor : ''}"
     version_cmd = "s3cmd ls  #{s3_stemcell_base_url(infrastructure, type)} " +
-                  "| sed -e 's/.*bosh-ci-pipeline.*stemcell-#{infrastructure}-\\(.*\\)\.tgz/\\1/' " +
+                  "| sed -e 's/.*bosh-ci-pipeline.*#{stemcell_basename}-\\(.*\\)\.tgz/\\1/' " +
                   "| sort -n | tail -1"
     version = %x[#{version_cmd}].chomp
 
-    stemcell_filename = "#{type == 'micro' ? 'micro-' : ''}bosh-stemcell-#{infrastructure}-#{version}.tgz"
+    stemcell_filename = "#{stemcell_basename}-#{version}.tgz"
     latest_stemcell_url = s3_stemcell_base_url(infrastructure, type) + stemcell_filename
     sh("s3cmd -f get #{latest_stemcell_url}")
-    ln_s("#{stemcell_filename}", "#{type == 'micro' ? 'micro-' : ''}bosh-stemcell-#{infrastructure}.tgz", force: true)
+    ln_s("#{stemcell_filename}", "#{stemcell_basename}.tgz", force: true)
   end
 
   def current_build_number
