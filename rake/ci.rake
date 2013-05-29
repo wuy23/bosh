@@ -121,10 +121,10 @@ namespace :ci do
   end
 
   def s3_release_url(build_number)
-    "s3://bosh-ci-pipeline/bosh-#{build_number}.tgz"
+    "s3://bosh-ci-pipeline-vsphere/bosh-#{build_number}.tgz"
   end
 
   def s3_stemcell_base_url(infrastructure, type)
-    "s3://bosh-ci-pipeline/stemcells/#{infrastructure}/#{type}/"
+    "s3://bosh-ci-pipeline-vsphere/stemcells/#{infrastructure}/#{type}/"
   end
 end

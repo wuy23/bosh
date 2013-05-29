@@ -99,8 +99,8 @@ namespace :spec do
           Rake::Task['spec:system:aws:publish_gems'].invoke
           ## TODO: the stemcells already exist in the bosh-ci-pipeline bucket, so
           #  we should just `s3cmd cp` from the pipeline bucket to artifacts bucket
-          publish_stemcell_to_s3(latest_aws_stemcell_path, 'bosh-jenkins-artifacts')
-          publish_stemcell_to_s3(latest_aws_micro_bosh_stemcell_path, 'bosh-jenkins-artifacts')
+          publish_stemcell_to_s3(latest_aws_stemcell_path, 'bosh-jenkins-artifacts-vsphere')
+          publish_stemcell_to_s3(latest_aws_micro_bosh_stemcell_path, 'bosh-jenkins-artifacts-vsphere')
         ensure
           Rake::Task['spec:system:aws:teardown_microbosh'].invoke
         end
@@ -147,8 +147,8 @@ namespace :spec do
       end
 
       task :publish_gems => 'spec:system:aws:bat' do
-        run('s3cmd sync s3://bosh-ci-pipeline/gems/ s3://bosh-jenkins-gems')
-        run('s3cmd sync s3://bosh-ci-pipeline/bosh s3://bosh-jenkins-artifacts')
+        run('s3cmd sync s3://bosh-ci-pipeline-vpshere/gems/ s3://bosh-jenkins-gems-vsphere')
+        run('s3cmd sync s3://bosh-ci-pipeline-vsphere/micro-bosh s3://bosh-jenkins-artifacts-vsphere')
       end
 
       task :get_deployments_aws do
@@ -171,8 +171,8 @@ namespace :spec do
         Rake::Task['spec:system:openstack:deploy_micro_manual_net'].invoke
         ## TODO: the stemcells already exist in the bosh-ci-pipeline bucket, so
         #  we should just `s3cmd cp` from the pipeline bucket to artifacts bucket
-        publish_stemcell_to_s3(latest_openstack_stemcell_path, 'bosh-jenkins-artifacts')
-        publish_stemcell_to_s3(latest_openstack_micro_bosh_stemcell_path, 'bosh-jenkins-artifacts')
+        publish_stemcell_to_s3(latest_openstack_stemcell_path, 'bosh-jenkins-artifacts-vsphere')
+        publish_stemcell_to_s3(latest_openstack_micro_bosh_stemcell_path, 'bosh-jenkins-artifacts-vsphere')
       end
 
       task :deploy_micro_dynamic_net do
@@ -242,8 +242,8 @@ namespace :spec do
           Rake::Task['spec:system:vsphere:deploy_micro'].invoke
           ## TODO: the stemcells already exist in the bosh-ci-pipeline bucket, so
           #  we should just `s3cmd cp` from the pipeline bucket to artifacts bucket
-          publish_stemcell_to_s3(latest_vsphere_stemcell_path, 'bosh-jenkins-artifacts')
-          publish_stemcell_to_s3(latest_vsphere_micro_bosh_stemcell_path, 'bosh-jenkins-artifacts')
+          publish_stemcell_to_s3(latest_vsphere_stemcell_path, 'bosh-jenkins-artifacts-vsphere')
+          publish_stemcell_to_s3(latest_vsphere_micro_bosh_stemcell_path, 'bosh-jenkins-artifacts-vsphere')
         ensure
           Rake::Task['spec:system:vsphere:teardown_microbosh'].execute
         end
