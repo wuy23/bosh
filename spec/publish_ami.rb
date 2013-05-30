@@ -12,6 +12,18 @@ unless ARGV.length == 1
   exit(1)
 end
 
+def candidate_build_number
+  if ENV['CANDIDATE_BUILD_NUMBER'].to_s.empty?
+    raise 'Please set the CANDIDATE_BUILD_NUMBER environment variable'
+  end
+
+  ENV['CANDIDATE_BUILD_NUMBER']
+end
+
+def s3_stemcell_base_url(infrastructure, type)
+  "s3://bosh-ci-pipeline-vsphere/stemcells/#{infrastructure}/#{type}/"
+end
+
 stemcell_tgz = File.expand_path(ARGV[0])
 AWS_TEST_MODE = ENV["AWS_TEST_MODE"]
 BUCKET_NAME = AWS_TEST_MODE ? 'bosh-jenkins-artifacts-dry' : 'bosh-jenkins-artifacts'
@@ -72,4 +84,10 @@ Dir.mktmpdir do |dir|
   Dir.chdir(dir) do
     system("tar cvzf #{light_stemcell_name} *") || raise("Failed to build light stemcell")
   end
+
+  path = Dir.glob("/mnt/stemcells/#{infrastructure}-#{type}/work/work/#{light_stemcell_name}").first
+  if path
+    sh("s3cmd put #{path} #{s3_stemcell_base_url(infrastructure, type)}")
+  end
+  # ...
 end
