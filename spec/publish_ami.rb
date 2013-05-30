@@ -85,6 +85,8 @@ Dir.mktmpdir do |dir|
     system("tar cvzf #{light_stemcell_name} *") || raise("Failed to build light stemcell")
   end
 
+  infrastructure = 'aws'
+  type = light_stemcell_name.include?('micro') ? 'micro' : 'basic'
   path = Dir.glob("/mnt/stemcells/#{infrastructure}-#{type}/work/work/#{light_stemcell_name}").first
   if path
     sh("s3cmd put #{path} #{s3_stemcell_base_url(infrastructure, type)}")
