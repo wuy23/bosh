@@ -55,11 +55,11 @@ Bosh::Clouds::Config.configure(cloud_config)
 
 cloud = Bosh::Clouds::Provider.create("aws", options)
 
-Dir.mktmpdir do |dir|
-  system('tar', 'xzf', stemcell_tgz, '--directory', dir) || raise("Failed to untar stemcell")
-  stemcell_manifest = "#{dir}/stemcell.MF"
+Dir.mktmpdir do |temp_dir|
+  system('tar', 'xzf', stemcell_tgz, '--directory', temp_dir) || raise("Failed to untar stemcell")
+  stemcell_manifest = "#{temp_dir}/stemcell.MF"
   stemcell_properties = Psych.load_file(stemcell_manifest)
-  image = "#{dir}/image"
+  image = "#{temp_dir}/image"
 
   if AWS_TEST_MODE
     ami_id = "ami-dryrun"
@@ -81,15 +81,20 @@ Dir.mktmpdir do |dir|
   end
 
   light_stemcell_name = File.dirname(stemcell_tgz) + "/light-" + File.basename(stemcell_tgz)
-  Dir.chdir(dir) do
+  Dir.chdir(temp_dir) do
     system("tar cvzf #{light_stemcell_name} *") || raise("Failed to build light stemcell")
   end
 
   infrastructure = 'aws'
   type = light_stemcell_name.include?('micro') ? 'micro' : 'basic'
-  path = Dir.glob("/mnt/stemcells/#{infrastructure}-#{type}/work/work/#{light_stemcell_name}").first
+  light_stemcell_glob = "#{temp_dir}/#{light_stemcell_name}"
+  p 'light_stemcell_name: ', light_stemcell_name
+  p 'glob', Dir.glob(light_stemcell_glob)
+  path = Dir.glob(light_stemcell_glob).first
   if path
     sh("s3cmd put #{path} #{s3_stemcell_base_url(infrastructure, type)}")
+  else
+    raise "#{light_stemcell_glob} didn't match any files!"
   end
   # ...
 end
