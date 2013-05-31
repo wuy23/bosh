@@ -98,7 +98,7 @@ namespace :ci do
     # hypervisor var is ugly hack since openstack stemcell buidler includes it in filename
     stemcell_basename = "#{type == 'micro' ? 'micro-' : ''}bosh-stemcell-#{infrastructure}#{hypervisor ? '-' + hypervisor : ''}"
     version_cmd = "s3cmd ls  #{s3_stemcell_base_url(infrastructure, type)} " +
-                  "| sed -e 's/.*bosh-ci-pipeline.*#{stemcell_basename}-\\(.*\\)\.tgz/\\1/' " +
+                  "| grep -v 'light-' | sed -e 's/.*bosh-ci-pipeline.*#{stemcell_basename}-\\(.*\\)\.tgz/\\1/' " +
                   "| sort -n | tail -1"
     version = %x[#{version_cmd}].chomp
 

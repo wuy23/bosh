@@ -82,19 +82,16 @@ Dir.mktmpdir do |temp_dir|
 
   light_stemcell_name = File.dirname(stemcell_tgz) + "/light-" + File.basename(stemcell_tgz)
   Dir.chdir(temp_dir) do
-    system("tar cvzf #{light_stemcell_name} *") || raise("Failed to build light stemcell")
-  end
+    system("pwd; tar cvzf #{light_stemcell_name} *") || raise("Failed to build light stemcell")
+    system("ls -la")
 
-  infrastructure = 'aws'
-  type = light_stemcell_name.include?('micro') ? 'micro' : 'basic'
-  light_stemcell_glob = "#{temp_dir}/#{light_stemcell_name}"
-  p 'light_stemcell_name: ', light_stemcell_name
-  p 'glob', Dir.glob(light_stemcell_glob)
-  path = Dir.glob(light_stemcell_glob).first
-  if path
-    sh("s3cmd put #{path} #{s3_stemcell_base_url(infrastructure, type)}")
-  else
-    raise "#{light_stemcell_glob} didn't match any files!"
+    infrastructure = 'aws'
+    type = light_stemcell_name.include?('micro') ? 'micro' : 'basic'
+    if File.exists?(light_stemcell_name)
+      sh("pwd; ls -la; s3cmd put #{light_stemcell_name} #{s3_stemcell_base_url(infrastructure, type)}")
+    else
+      raise "#{light_stemcell_name} doesn't exist in #{Dir.pwd}"
+    end
   end
   # ...
 end
