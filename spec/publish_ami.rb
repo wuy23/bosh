@@ -88,7 +88,9 @@ Dir.mktmpdir do |temp_dir|
     infrastructure = 'aws'
     type = light_stemcell_name.include?('micro') ? 'micro' : 'basic'
     if File.exists?(light_stemcell_name)
-      sh("pwd; ls -la; s3cmd put #{light_stemcell_name} #{s3_stemcell_base_url(infrastructure, type)}")
+      puts Dir.pwd
+      puts "s3cmd put #{light_stemcell_name} #{s3_stemcell_base_url(infrastructure, type)}"
+      system("s3cmd put #{light_stemcell_name} #{s3_stemcell_base_url(infrastructure, type)}") || raise("Failed to upload light stecmcell")
     else
       raise "#{light_stemcell_name} doesn't exist in #{Dir.pwd}"
     end
